@@ -13,9 +13,6 @@ const app = express();
 
 const clientBuildPath = path.join(__dirname, "../client/build");
 app.use(express.static(clientBuildPath));
-app.get("*", (req, res) => {
-    res.sendFile(path.join(clientBuildPath, "index.html"));
-});
 
 app.use(
     cors({
@@ -52,10 +49,13 @@ app.get("/", (req, res) =>
     res.status(201).send("Welcome to the home page.")
 );
 
+app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+});
+
 app.use((req, res) =>
     res.status(404).json({ message: "page not found" })
 );
-
 
 app.listen(PORT, () => {
     console.log(`server is running on port`);
