@@ -19,7 +19,7 @@ app.get("*", (req, res) => {
 
 app.use(
     cors({
-        origin: "*", // Allow only your frontend origin
+        origin: ["http://localhost:3000", "https://book-my-show-deployed-2.onrender.com"], // Allow only your frontend origin
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,

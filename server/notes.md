@@ -91,4 +91,9 @@ to add any necessary environment variables such as
 MONGODB_URI, JWT_SECRET, etc.
 
 
+## Step 7: Correct your base URL in client -> src/api/index.js
+
+## Step 8: 
+
+
 
