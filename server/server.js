@@ -1,55 +1,38 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const mongoSanitize = require("express-mongo-sanitize");
+const cors = require("cors");
+const path = require("path");
 
 // Load env Variables.
 require('dotenv').config();
 
 // Constants
-const PORT = 8082;
-const HOST = "localhost";
+const PORT = process.env.PORT;
 
 // Setup
 const app = express();
+
+const clientBuildPath = path.join(__dirname, "../client/build");
+app.use(express.static(clientBuildPath));
+app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+});
+
+app.use(
+    cors({
+        origin: "*", // Allow only your frontend origin
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true,
+    })
+);
+
+
+
 app.use(express.json()); // Middleware
 
 // Data base connection.
 const connectDb = require("./config/db");
 connectDb(); // Stablish database connection.
-
-// Use helmet for setting various HTTP headers for security
-app.use(helmet());
-// Custom Content Security Policy (CSP) configuration
-app.use(
-    helmet.contentSecurityPolicy({
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "example.com"], // Allow scripts from 'self' and example.com
-            styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles (unsafe)
-            imgSrc: ["'self'", "data:", "example.com"], // Allow images from 'self', data URLs, and example.com
-            connectSrc: ["'self'", "api.example.com"], // Allow connections to 'self' and api.example.com
-            fontSrc: ["'self'", "fonts.gstatic.com"], // Allow fonts from 'self' and fonts.gstatic.com
-            objectSrc: ["'none'"], // Disallow object, embed, and applet elements
-            upgradeInsecureRequests: [], // Upgrade insecure requests to HTTPS
-        },
-    })
-);
-
-// Rate limiter middleware
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window`.
-    message: "Too many requests from this IP, please try again after 15 minutes"
-});
-
-
-// Apply rate limiter to all API routes
-app.use("/api/", apiLimiter);
-
-// Sanitize user input to prevent MongoDB Operator Injection
-app.use(mongoSanitize());
-
 
 // Global Variables
 const USER_ROUTER = require("./routes/userRouter");
@@ -73,9 +56,8 @@ app.use((req, res) =>
     res.status(404).json({ message: "page not found" })
 );
 
-// Start the server.
-// URL: localhost:8082
+
 app.listen(PORT, () => {
-    console.log(`server is running on http://${HOST}:${PORT}`);
+    console.log(`server is running on port`);
 });
 
